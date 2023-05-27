@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_water/src/bloc/regis/regis_bloc.dart';
 import 'package:smart_water/src/helpers/ui_helpers.dart';
+import 'package:smart_water/src/models/request/regis_model_req.dart';
 import 'package:smart_water/src/ui/shared/colors.dart';
 import 'package:smart_water/src/helpers/scalable_dp_helper.dart';
 import 'package:smart_water/src/ui/shared/dimens.dart';
@@ -11,6 +14,11 @@ class RegisView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController phoneController = TextEditingController();
+    final TextEditingController rfIdController = TextEditingController();
+    final TextEditingController genderController = TextEditingController();
+
     SDP.init(context);
     return Scaffold(
       backgroundColor: BaseColors.primary,
@@ -90,6 +98,7 @@ class RegisView extends StatelessWidget {
                               ),
                               verticalSpace(SDP.sdp(5.0)),
                               KTextField(
+                                controller: nameController,
                                 isDense: true,
                                 borderColor: BaseColors.divider,
                                 borderRadius: SDP.sdp(12.0),
@@ -102,6 +111,7 @@ class RegisView extends StatelessWidget {
                               verticalSpace(SDP.sdp(5.0)),
                               KTextField(
                                 isDense: true,
+                                controller: phoneController,
                                 borderColor: BaseColors.divider,
                                 borderRadius: SDP.sdp(12.0),
                               ),
@@ -112,6 +122,7 @@ class RegisView extends StatelessWidget {
                               ),
                               verticalSpace(SDP.sdp(5.0)),
                               KTextField(
+                                controller: genderController,
                                 isDense: true,
                                 borderColor: BaseColors.divider,
                                 borderRadius: SDP.sdp(12.0),
@@ -123,21 +134,52 @@ class RegisView extends StatelessWidget {
                               ),
                               verticalSpace(SDP.sdp(5.0)),
                               KTextField(
+                                controller: rfIdController,
                                 isDense: true,
                                 borderColor: BaseColors.divider,
                                 borderRadius: SDP.sdp(12.0),
                               ),
                               verticalSpace(SDP.sdp(65.0)),
-                              SizedBox(
-                                width: screenWidth(context),
-                                child: ElevatedButton(
-                                  style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(BaseColors.primary)),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Daftar akun',
-                                    style: whiteSemiBoldTextstyle.copyWith(fontSize: body),
-                                  ),
-                                ),
+                              BlocConsumer<RegisBloc, RegisState>(
+                                listener: (context, state) {
+                                  if (state is RegisLoaded) {
+                                    nameController.clear();
+                                    phoneController.clear();
+                                    rfIdController.clear();
+                                    genderController.clear();
+                                  }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Registrasi Behasil'),
+                                    ),
+                                  );
+                                },
+                                builder: (context, state) {
+                                  if (state is RegisLoading) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                  return SizedBox(
+                                    width: screenWidth(context),
+                                    child: ElevatedButton(
+                                      style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(BaseColors.primary)),
+                                      onPressed: () {
+                                        final reqModel = RegisModelReq(
+                                          rfId: rfIdController.text,
+                                          nama: nameController.text,
+                                          jenisKelamin: genderController.text,
+                                          telpon: phoneController.text,
+                                        );
+                                        context.read<RegisBloc>().add(RegisSaveEvent(request: reqModel));
+                                      },
+                                      child: Text(
+                                        'Daftar akun',
+                                        style: whiteSemiBoldTextstyle.copyWith(fontSize: body),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),
