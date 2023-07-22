@@ -8,16 +8,42 @@ import 'package:smart_water/src/helpers/scalable_dp_helper.dart';
 import 'package:smart_water/src/ui/shared/dimens.dart';
 import 'package:smart_water/src/ui/shared/styles.dart';
 import 'package:smart_water/src/ui/widgets/textfield.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 
-class RegisView extends StatelessWidget {
+class RegisView extends StatefulWidget {
   const RegisView({super.key});
 
+  @override
+  State<RegisView> createState() => _RegisViewState();
+}
+
+class _RegisViewState extends State<RegisView> {
   @override
   Widget build(BuildContext context) {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController phoneController = TextEditingController();
     final TextEditingController rfIdController = TextEditingController();
     final TextEditingController genderController = TextEditingController();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+    List<DropdownMenuItem> item = [
+      const DropdownMenuItem(
+        value: 'Laki-laki',
+        child: Text(
+          "Laki-laki",
+          style: TextStyle(fontSize: 12),
+        ),
+      ),
+      const DropdownMenuItem(
+        value: 'wanita',
+        child: Text(
+          "Wanita",
+          style: TextStyle(fontSize: 12),
+        ),
+      ),
+    ];
+
+    //String dropdownValue = item.first.value;
 
     SDP.init(context);
     return Scaffold(
@@ -89,99 +115,125 @@ class RegisView extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                             horizontal: SDP.sdp(173.0),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Nama Lengkap',
-                                style: blackMediumTextstyle.copyWith(fontSize: SDP.sdp(text)),
-                              ),
-                              verticalSpace(SDP.sdp(5.0)),
-                              KTextField(
-                                controller: nameController,
-                                isDense: true,
-                                borderColor: BaseColors.divider,
-                                borderRadius: SDP.sdp(12.0),
-                              ),
-                              verticalSpace(SDP.sdp(headline)),
-                              Text(
-                                'Nomor Handphone',
-                                style: blackMediumTextstyle.copyWith(fontSize: SDP.sdp(text)),
-                              ),
-                              verticalSpace(SDP.sdp(5.0)),
-                              KTextField(
-                                isDense: true,
-                                controller: phoneController,
-                                borderColor: BaseColors.divider,
-                                borderRadius: SDP.sdp(12.0),
-                              ),
-                              verticalSpace(SDP.sdp(headline)),
-                              Text(
-                                'Jenis Kelamis',
-                                style: blackMediumTextstyle.copyWith(fontSize: SDP.sdp(text)),
-                              ),
-                              verticalSpace(SDP.sdp(5.0)),
-                              KTextField(
-                                controller: genderController,
-                                isDense: true,
-                                borderColor: BaseColors.divider,
-                                borderRadius: SDP.sdp(12.0),
-                              ),
-                              verticalSpace(SDP.sdp(headline)),
-                              Text(
-                                'Unik Rfid',
-                                style: blackMediumTextstyle.copyWith(fontSize: SDP.sdp(text)),
-                              ),
-                              verticalSpace(SDP.sdp(5.0)),
-                              KTextField(
-                                controller: rfIdController,
-                                isDense: true,
-                                borderColor: BaseColors.divider,
-                                borderRadius: SDP.sdp(12.0),
-                              ),
-                              verticalSpace(SDP.sdp(65.0)),
-                              BlocConsumer<RegisBloc, RegisState>(
-                                listener: (context, state) {
-                                  if (state is RegisLoaded) {
-                                    nameController.clear();
-                                    phoneController.clear();
-                                    rfIdController.clear();
-                                    genderController.clear();
-                                  }
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Registrasi Behasil'),
+                          child: Form(
+                            key: formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Nama Lengkap',
+                                  style: blackMediumTextstyle.copyWith(fontSize: SDP.sdp(text)),
+                                ),
+                                verticalSpace(SDP.sdp(5.0)),
+                                KTextField(
+                                  controller: nameController,
+                                  isDense: true,
+                                  borderColor: BaseColors.divider,
+                                  borderRadius: SDP.sdp(12.0),
+                                  validator: RequiredValidator(errorText: 'This field is required'),
+                                ),
+                                verticalSpace(SDP.sdp(headline)),
+                                Text(
+                                  'Nomor Handphone',
+                                  style: blackMediumTextstyle.copyWith(fontSize: SDP.sdp(text)),
+                                ),
+                                verticalSpace(SDP.sdp(5.0)),
+                                KTextField(
+                                  isDense: true,
+                                  controller: phoneController,
+                                  borderColor: BaseColors.divider,
+                                  borderRadius: SDP.sdp(12.0),
+                                  validator: RequiredValidator(errorText: 'This field is required'),
+                                ),
+                                verticalSpace(SDP.sdp(headline)),
+                                Text(
+                                  'Jenis Kelamis',
+                                  style: blackMediumTextstyle.copyWith(fontSize: SDP.sdp(text)),
+                                ),
+                                verticalSpace(SDP.sdp(5.0)),
+                                /*  DropdownButtonFormField(
+                                  isDense: true,
+                                  isExpanded: true,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: BaseColors.green, width: 2),
+                                      borderRadius: BorderRadius.circular(SDP.sdp(radius)),
                                     ),
-                                  );
-                                },
-                                builder: (context, state) {
-                                  if (state is RegisLoading) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
-                                  return SizedBox(
-                                    width: screenWidth(context),
-                                    child: ElevatedButton(
-                                      style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(BaseColors.primary)),
-                                      onPressed: () {
-                                        final reqModel = RegisModelReq(
-                                          rfId: rfIdController.text,
-                                          nama: nameController.text,
-                                          jenisKelamin: genderController.text,
-                                          telpon: phoneController.text,
-                                        );
-                                        context.read<RegisBloc>().add(RegisSaveEvent(request: reqModel));
-                                      },
-                                      child: Text(
-                                        'Daftar akun',
-                                        style: whiteSemiBoldTextstyle.copyWith(fontSize: body),
+                                  ),
+                                  items: item,
+                                  value: dropdownValue,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      dropdownValue = value;
+                                    });
+                                  },
+                                ), */
+                                KTextField(
+                                  controller: genderController,
+                                  isDense: true,
+                                  borderColor: BaseColors.divider,
+                                  borderRadius: SDP.sdp(12.0),
+                                  validator: RequiredValidator(errorText: 'This field is required'),
+                                ),
+                                verticalSpace(SDP.sdp(headline)),
+                                Text(
+                                  'Unik Rfid',
+                                  style: blackMediumTextstyle.copyWith(fontSize: SDP.sdp(text)),
+                                ),
+                                verticalSpace(SDP.sdp(5.0)),
+                                KTextField(
+                                  controller: rfIdController,
+                                  isDense: true,
+                                  borderColor: BaseColors.divider,
+                                  borderRadius: SDP.sdp(12.0),
+                                  validator: RequiredValidator(errorText: 'This field is required'),
+                                ),
+                                verticalSpace(SDP.sdp(65.0)),
+                                BlocConsumer<RegisBloc, RegisState>(
+                                  listener: (context, state) {
+                                    if (state is RegisLoaded) {
+                                      nameController.clear();
+                                      phoneController.clear();
+                                      rfIdController.clear();
+                                      genderController.clear();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Registrasi Behasil'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  builder: (context, state) {
+                                    if (state is RegisLoading) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    return SizedBox(
+                                      width: screenWidth(context),
+                                      child: ElevatedButton(
+                                        style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(BaseColors.primary)),
+                                        onPressed: () {
+                                          final reqModel = RegisModelReq(
+                                            rfId: rfIdController.text,
+                                            nama: nameController.text,
+                                            jenisKelamin: genderController.text,
+                                            telpon: phoneController.text,
+                                          );
+                                          if (formKey.currentState?.validate() ?? false) {
+                                            return context.read<RegisBloc>().add(RegisSaveEvent(request: reqModel));
+                                          }
+                                        },
+                                        child: Text(
+                                          'Daftar akun',
+                                          style: whiteSemiBoldTextstyle.copyWith(fontSize: body),
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         )
                       ],

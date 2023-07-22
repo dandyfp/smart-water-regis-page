@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:smart_water/src/models/request/regis_model_req.dart';
+import 'package:smart_water/src/models/request/response_api.dart';
 
-const baseUrl = 'http://127.0.0.1:8000/api/register';
+const baseUrl = 'http://mdl2023.my.id/api/register';
 
 class AuthNetwork {
   Future register(RegisModelReq request) async {
@@ -16,8 +17,10 @@ class AuthNetwork {
     try {
       final dio = Dio();
       var response = await dio.post(baseUrl, data: jsonEncode(body));
+      var result = ResponseApi(data: response);
       print(response.data);
       print(response.statusCode);
+      return result;
     } catch (e) {
       print(e);
     }
